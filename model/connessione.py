@@ -15,7 +15,7 @@ class Connessione:
 
         if difficolta == "facile":
             return 1
-        elif difficolta == "medio":
+        elif difficolta == "media":
             return 1.5
         elif difficolta == "difficile":
             return 2

@@ -1,5 +1,4 @@
 import networkx as nx
-
 from database.dao import DAO
 
 
@@ -8,11 +7,11 @@ class Model:
         """Definire le strutture dati utili"""
         # TODO
         self.G = nx.Graph()
-        self.lista_rifugi = DAO.get_rifugio()
-        self.dizionario_rifugi = {rifugio["id"] : {"nome": rifugio["nome"], "localita": rifugio["localita"]} for rifugio in self.lista_rifugi}
-        self.lista_connessioni = []
-        self.lista_minore_soglia = []
-        self.lista_maggiore_soglia = []
+        self._lista_rifugi = DAO.get_rifugio()
+        self._dizionario_rifugi = {}
+        self._lista_connessioni = []
+
+        self._lista_pesi = []
 
 
     def build_weighted_graph(self, year: int):
@@ -23,10 +22,16 @@ class Model:
         """
         # TODO
         self.G.clear()       #Puliamo il grafo per non sovrascrivere
-        self.lista_connessioni = DAO.get_connessioni_per_anno(year)
+        self._lista_connessioni.clear()
+        self._lista_connessioni = DAO.get_connessioni_per_anno(year)
 
-        for connessione in self.lista_connessioni:
-            self.G.add_edge(self.dizionario_rifugi[connessione.id_1], self.dizionario_rifugi[connessione.id_2],  weight = (connessione.distanza * connessione.converti_difficolta(connessione.difficolta)))
+        for rifugio in self._lista_rifugi:
+            self._dizionario_rifugi[rifugio.id] = rifugio
+
+        for connessione in self._lista_connessioni:
+            peso = (float(connessione.distanza) * float(connessione.converti_difficolta(connessione.difficolta)))
+            self.G.add_edge(self._dizionario_rifugi[connessione.id_1], self._dizionario_rifugi[connessione.id_2],  weight = peso )
+            self._lista_pesi.append(peso)
 
         return self.G
 
@@ -37,6 +42,9 @@ class Model:
         :return: il peso massimo degli archi nel grafo
         """
         # TODO
+        minimo = min(self._lista_pesi)
+        massimo = max(self._lista_pesi)
+        return minimo, massimo
 
     def count_edges_by_threshold(self, soglia):
         """
@@ -46,6 +54,18 @@ class Model:
         :return maggiori: archi con peso > soglia
         """
         # TODO
+        lista_sopra = []
+        lista_sotto = []
+
+        for peso in self._lista_pesi:
+            if peso < soglia:
+                lista_sotto.append(peso)
+            elif peso >= soglia:
+                lista_sopra.append(peso)
+
+        return len(lista_sotto), len(lista_sopra)
+
+
 
     """Implementare la parte di ricerca del cammino minimo"""
     # TODO

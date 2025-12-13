@@ -126,7 +126,7 @@ class Model:
     """
     def get_cammino_minimo_ricorsivo(self, soglia):
 
-    #---Metodo con RICORSIONE---   ---> NON funzionante
+    #---Metodo con RICORSIONE---   ---> Da rivedere 
 
         G_filtrato = self.crea_grafo_filtrato(soglia)
 
